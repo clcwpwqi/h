@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>DevToolkit Pro - 程序员工具箱</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet">
+<style>
+/* Material Design 3 Color System & Variables */
+:root {
+  --md-sys-color-primary: #4F46E5;
+  --md-sys-color-on-primary: #FFFFFF;
+  --md-sys-color-primary-container: #E0E7FF;
+  --md-sys-color-on-primary-container: #1E1B4B;
+  --md-sys-color-secondary: #6366F1;
+  --md-sys-color-on-secondary: #FFFFFF;
+  --md-sys-color-secondary-container: #E0E7FF;
+  --md-sys-color-on-secondary-container: #1E1B4B;
+  --md-sys-color-error: #BA1A1A;
+  --md-sys-color-on-error: #FFFFFF;
+  --md-sys-color-surface: #F8FAFC;
+  --md-sys-color-surface-variant: #F1F5F9;
+  --md-sys-color-surface-container: #FFFFFF;
+  --md-sys-color-surface-container-high: #F1F5F9;
+  --md-sys-color-surface-container-highest: #E2E8F0;
+  --md-sys-color-on-surface: #0F172A;
+  --md-sys-color-on-surface-variant: #475569;
+  --md-sys-color-outline: #CBD5E1;
+  --md-sys-color-outline-variant: #E2E8F0;
+  --md-sys-color-inverse-surface: #1E293B;
+  --md-sys-color-inverse-on-surface: #F1F5F9;
+  
+  --md-sys-shadow-1: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+  --md-sys-shadow-2: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03);
+  --md-sys-shadow-3: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -4px rgba(0,0,0,0.03);
+  --md-sys-shadow-nav: 2px 0 12px rgba(0,0,0,0.04);
+  
+  --md-sys-shape-sm: 8px;
+  --md-sys-shape-md: 12px;
+  --md-sys-shape-lg: 16px;
+  --md-sys-shape-xl: 24px;
+  
+  --md-sys-motion-standard: cubic-bezier(0.2, 0.0, 0, 1.0);
+  --md-sys-motion-emphasized: cubic-bezier(0.05, 0.7, 0.1, 1.0);
+  
+  --nav-width: 260px;
+  --top-app-bar-height: 64px;
+  --transition-base: all 0.25s var(--md-sys-motion-standard);
+}
+
+html[data-theme="dark"] {
+  --md-sys-color-primary: #818CF8;
+  --md-sys-color-on-primary: #1E1B4B;
+  --md-sys-color-primary-container: #312E81;
+  --md-sys-color-on-primary-container: #E0E7FF;
+  --md-sys-color-secondary: #6366F1;
+  --md-sys-color-on-secondary: #FFFFFF;
+  --md-sys-color-secondary-container: #3730A3;
+  --md-sys-color-on-secondary-container: #E0E7FF;
+  --md-sys-color-error: #FFB4AB;
+  --md-sys-color-on-error: #690005;
+  --md-sys-color-surface: #0B0F19;
+  --md-sys-color-surface-variant: #1E293B;
+  --md-sys-color-surface-container: #111827;
+  --md-sys-color-surface-container-high: #1E293B;
+  --md-sys-color-surface-container-highest: #334155;
+  --md-sys-color-on-surface: #F8FAFC;
+  --md-sys-color-on-surface-variant: #94A3B8;
+  --md-sys-color-outline: #475569;
+  --md-sys-color-outline-variant: #334155;
+  --md-sys-color-inverse-surface: #E2E8F0;
+  --md-sys-color-inverse-on-surface: #0F172A;
+  
+  --md-sys-shadow-1: 0 1px 3px rgba(0,0,0,0.4);
+  --md-sys-shadow-2: 0 4px 6px rgba(0,0,0,0.4);
+  --md-sys-shadow-3: 0 10px 15px rgba(0,0,0,0.4);
+  --md-sys-shadow-nav: 2px 0 12px rgba(0,0,0,0.6);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  display: flex;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.material-symbols-rounded { font-size: 22px; vertical-align: middle; }
+a { color: var(--md-sys-color-primary); text-decoration: none; }
+
+/* Top App Bar */
+.top-app-bar {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--top-app-bar-height);
+  background: color-mix(in srgb, var(--md-sys-color-surface) 85%, transparent);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  display: flex; align-items: center; padding: 0 20px; z-index: 100;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.top-app-bar h1 {
+  font-size: 20px; font-weight: 600; flex: 1; margin-left: 12px;
+  background: linear-gradient(135deg, var(--md-sys-color-primary), var(--md-sys-color-secondary));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.3px;
+}
+
+.icon-btn {
+  width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer;
+  background: transparent; color: var(--md-sys-color-on-surface-variant);
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: var(--transition-base);
+}
+.icon-btn:hover { background: var(--md-sys-color-surface-container-highest); color: var(--md-sys-color-primary); }
+.icon-btn:active { transform: scale(0.92); }
+
+.menu-btn { display: none; }
+
+/* Navigation Drawer */
+.nav-drawer {
+  position: fixed; top: var(--top-app-bar-height); left: 0; bottom: 0; width: var(--nav-width);
+  background: var(--md-sys-color-surface-container); border-right: 1px solid var(--md-sys-color-outline-variant);
+  overflow-y: auto; z-index: 90; padding: 12px;
+  transition: transform 0.3s var(--md-sys-motion-emphasized);
+}
+.nav-drawer::-webkit-scrollbar { width: 6px; }
+.nav-drawer::-webkit-scrollbar-thumb { background: var(--md-sys-color-outline-variant); border-radius: 6px; }
+
+.nav-group { margin-bottom: 4px; }
+.nav-group-title {
+  padding: 10px 12px 6px; font-size: 11px; font-weight: 700; color: var(--md-sys-color-on-surface-variant);
+  letter-spacing: 1px; text-transform: uppercase; display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; user-select: none; border-radius: var(--md-sys-shape-sm);
+}
+.nav-group-title:hover { background: var(--md-sys-color-surface-variant); color: var(--md-sys-color-primary); }
+.nav-group-title::after {
+  content: 'expand_more'; font-family: 'Material Symbols Rounded'; font-size: 18px;
+  transition: transform 0.2s;
+}
+.nav-group-title.collapsed::after { transform: rotate(-90deg); }
+.nav-sub { display: block; overflow: hidden; transition: max-height 0.3s ease-in-out; }
+.nav-sub.collapsed { max-height: 0; }
+
+.nav-item {
+  display: flex; align-items: center; padding: 0 12px; height: 40px; border-radius: var(--md-sys-shape-md);
+  cursor: pointer; margin: 2px 0; transition: var(--transition-base); user-select: none; color: var(--md-sys-color-on-surface);
+}
+.nav-item:hover { background: var(--md-sys-color-surface-variant); }
+.nav-item.active {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container); font-weight: 500;
+}
+.nav-item .material-symbols-rounded { margin-right: 12px; font-size: 20px; flex-shrink: 0; }
+.nav-item span:last-child { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Main Content */
+.main-content {
+  margin-left: var(--nav-width); margin-top: var(--top-app-bar-height); padding: 24px;
+  width: calc(100% - var(--nav-width)); min-height: calc(100vh - var(--top-app-bar-height));
+  max-width: 1200px; margin-right: auto;
+}
+
+@keyframes slideUpFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.card {
+  background: var(--md-sys-color-surface-container); border-radius: var(--md-sys-shape-lg);
+  padding: 24px; margin-bottom: 20px; box-shadow: var(--md-sys-shadow-1);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  animation: slideUpFade 0.3s var(--md-sys-motion-emphasized);
+}
+
+.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.card h2 { font-size: 20px; font-weight: 600; margin: 0; color: var(--md-sys-color-on-surface); }
+.card h3 { font-size: 16px; font-weight: 600; margin: 16px 0 10px; color: var(--md-sys-color-on-surface); }
+
+/* Forms */
+textarea, input[type="text"], input[type="number"], input[type="datetime-local"], select {
+  width: 100%; padding: 12px 14px; border: 1px solid var(--md-sys-color-outline); border-radius: var(--md-sys-shape-md);
+  background: var(--md-sys-color-surface); color: var(--md-sys-color-on-surface); font-family: 'Roboto Mono', monospace;
+  font-size: 14px; transition: var(--transition-base); resize: vertical; margin-bottom: 12px; box-sizing: border-box;
+}
+textarea:focus, input[type="text"]:focus, input[type="number"]:focus, select:focus {
+  outline: none; border-color: var(--md-sys-color-primary); background: var(--md-sys-color-surface-container);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--md-sys-color-primary) 15%, transparent);
+}
+label { font-size: 13px; font-weight: 500; color: var(--md-sys-color-on-surface-variant); display: block; margin-bottom: 6px; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 0 16px; height: 38px; border-radius: 20px; font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: var(--transition-base); border: 1px solid transparent; font-family: inherit; white-space: nowrap;
+}
+.btn:active { transform: scale(0.96); }
+.btn-filled { background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); box-shadow: var(--md-sys-shadow-1); }
+.btn-filled:hover { background: color-mix(in srgb, var(--md-sys-color-primary) 90%, black); box-shadow: var(--md-sys-shadow-2); }
+.btn-outlined { background: transparent; border-color: var(--md-sys-color-outline); color: var(--md-sys-color-primary); }
+.btn-outlined:hover { background: var(--md-sys-color-surface-variant); border-color: var(--md-sys-color-primary); }
+.btn-text { background: transparent; color: var(--md-sys-color-primary); border: none; padding: 0 12px; }
+.btn-text:hover { background: var(--md-sys-color-surface-variant); border-radius: 20px; }
+.btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin: 4px 0 16px 0; }
+
+/* Result Box */
+.result-box {
+  background: var(--md-sys-color-surface-variant); border-radius: var(--md-sys-shape-md); padding: 16px;
+  font-family: 'Roboto Mono', monospace; white-space: pre-wrap; word-break: break-all;
+  max-height: 400px; overflow-y: auto; position: relative;
+  border: 1px solid var(--md-sys-color-outline-variant); line-height: 1.6; font-size: 13px; margin-bottom: 12px;
+}
+.copy-btn-abs { position: absolute; top: 8px; right: 8px; z-index: 5; background: var(--md-sys-color-surface-container); border-radius: var(--md-sys-shape-sm); }
+
+/* Switch & Chip */
+.switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch .slider {
+  position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--md-sys-color-surface-container-highest); border-radius: 24px; transition: 0.3s;
+}
+.switch .slider::before {
+  content: ''; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px;
+  background: var(--md-sys-color-on-surface); border-radius: 50%; transition: 0.3s;
+}
+.switch input:checked + .slider { background: var(--md-sys-color-primary); }
+.switch input:checked + .slider::before { transform: translateX(20px); background: var(--md-sys-color-on-primary); }
+
+.chip {
+  display: inline-flex; align-items: center; padding: 0 14px; height: 32px; border-radius: 16px;
+  border: 1px solid var(--md-sys-color-outline); font-size: 13px; cursor: pointer;
+  transition: var(--transition-base); background: var(--md-sys-color-surface); color: var(--md-sys-color-on-surface-variant);
+  user-select: none; margin-bottom: 8px;
+}
+.chip:hover { background: var(--md-sys-color-surface-variant); }
+.chip.selected { background: var(--md-sys-color-primary-container); border-color: transparent; color: var(--md-sys-color-on-primary-container); font-weight: 500; }
+
+/* Utilities */
+.flex { display: flex; gap: 16px; flex-wrap: wrap; }
+.flex > * { flex: 1; min-width: 240px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
+
+.table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.table th, .table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--md-sys-color-outline-variant); }
+.table th { font-weight: 600; background: var(--md-sys-color-surface-variant); border-radius: 4px; }
+
+/* Snackbar & FAB */
+.snackbar {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
+  background: var(--md-sys-color-inverse-surface); color: var(--md-sys-color-inverse-on-surface);
+  padding: 12px 24px; border-radius: var(--md-sys-shape-md); box-shadow: var(--md-sys-shadow-3);
+  z-index: 200; transition: transform 0.4s var(--md-sys-motion-emphasized); font-size: 14px; font-weight: 500;
+}
+.snackbar.show { transform: translateX(-50%) translateY(0); }
+
+.fab {
+  position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: var(--md-sys-shape-lg);
+  background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container);
+  border: none; cursor: pointer; box-shadow: var(--md-sys-shadow-2); display: flex; align-items: center; justify-content: center;
+  transition: var(--transition-base); z-index: 100;
+}
+.fab:hover { box-shadow: var(--md-sys-shadow-3); transform: translateY(-3px); background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }
+.fab.hidden { transform: scale(0); opacity: 0; pointer-events: none; }
+
+/* Search Overlay */
+#search-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 150; display: none;
+}
+#search-overlay.active { display: flex; align-items: flex-start; justify-content: center; padding-top: 15vh; }
+#search-box {
+  width: 600px; max-width: 90vw; background: var(--md-sys-color-surface-container);
+  border-radius: var(--md-sys-shape-xl); padding: 12px; box-shadow: var(--md-sys-shadow-3);
+  border: 1px solid var(--md-sys-color-outline-variant); animation: slideUpFade 0.2s;
+}
+#search-input { width: 100%; background: transparent; border: none; font-size: 18px; padding: 16px; margin: 0; font-family: inherit; }
+#search-input:focus { outline: none; box-shadow: none; background: transparent; }
+#search-results { max-height: 40vh; overflow-y: auto; padding: 0 8px; }
+.search-item {
+  padding: 14px 16px; border-radius: var(--md-sys-shape-md); cursor: pointer;
+  display: flex; align-items: center; gap: 16px; transition: var(--transition-base); font-size: 15px; color: var(--md-sys-color-on-surface);
+}
+.search-item:hover { background: var(--md-sys-color-surface-variant); color: var(--md-sys-color-primary); }
+
+.overlay-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 80; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+.overlay-bg.show { opacity: 1; pointer-events: auto; }
+
+/* Specific Tools UI */
+.settings-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--md-sys-color-outline-variant); }
+.settings-item:last-child { border-bottom: none; }
+
+.home-hero {
+  text-align: center; padding: 48px 24px; background: linear-gradient(135deg, var(--md-sys-color-primary-container), var(--md-sys-color-secondary-container));
+  border-radius: var(--md-sys-shape-xl); margin-bottom: 24px; position: relative; color: var(--md-sys-color-on-primary-container);
+}
+.home-time { font-size: clamp(48px, 6vw, 72px); font-weight: 300; font-family: 'Roboto Mono', monospace; letter-spacing: -2px; }
+.home-quote { font-size: 16px; font-style: italic; opacity: 0.8; margin-top: 24px; max-width: 600px; margin-inline: auto; line-height: 1.6; }
+
+.quick-tool-btn {
+  display: flex; flex-direction: column; align-items: center; padding: 20px 12px; border-radius: var(--md-sys-shape-md);
+  background: var(--md-sys-color-surface); border: 1px solid var(--md-sys-color-outline-variant);
+  cursor: pointer; transition: var(--transition-base); text-align: center;
+}
+.quick-tool-btn:hover { transform: translateY(-4px); box-shadow: var(--md-sys-shadow-2); border-color: var(--md-sys-color-primary); color: var(--md-sys-color-primary); }
+.quick-tool-btn .material-symbols-rounded { font-size: 32px; margin-bottom: 12px; color: var(--md-sys-color-primary); }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .nav-drawer { transform: translateX(-100%); z-index: 110; border-right: none; }
+  .nav-drawer.open { transform: translateX(0); box-shadow: var(--md-sys-shadow-nav); }
+  .main-content { margin-left: 0; width: 100%; padding: 16px; }
+  .menu-btn { display: inline-flex !important; }
+}
+@media (min-width: 901px) { .menu-btn { display: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="top-app-bar">
+  <button class="icon-btn menu-btn" id="menuBtn"><span class="material-symbols-rounded">menu</span></button>
+  <h1>DevToolkit Pro</h1>
+  <button class="icon-btn" id="searchBtn" title="搜索工具 (Ctrl+K)"><span class="material-symbols-rounded">search</span></button>
+  <button class="icon-btn" id="themeToggle" title="切换主题"><span class="material-symbols-rounded" id="themeIcon">dark_mode</span></button>
+</header>
+
+<nav class="nav-drawer" id="navDrawer"></nav>
+<div class="overlay-bg" id="overlay"></div>
+
+<main class="main-content" id="mainContent"></main>
+
+<button class="fab hidden" id="fab"><span class="material-symbols-rounded">arrow_upward</span></button>
+<div class="snackbar" id="snackbar"></div>
+
+<div id="search-overlay">
+  <div id="search-box">
+    <input type="text" id="search-input" placeholder="搜索工具... (ESC 关闭)" autocomplete="off">
+    <div id="search-results"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<script>
+(function() {
+'use strict';
+
+// ============== CONFIG ==============
+const ALL_TOOLS = [
+  {group:'首页', icon:'home', items:[
+    {id:'home', name:'首页概览', icon:'home', alwaysVisible:true}
+  ]},
+  {group:'编码解码', icon:'code', items:[
+    {id:'base64', name:'Base64 编解码', icon:'data_object'},
+    {id:'url', name:'URL 编解码', icon:'link'},
+    {id:'html', name:'HTML 实体编解码', icon:'html'},
+    {id:'unicode', name:'Unicode 转义', icon:'translate'},
+    {id:'jwt', name:'JWT 解码', icon:'password'}
+  ]},
+  {group:'哈希加密', icon:'lock', items:[
+    {id:'hash', name:'哈希计算', icon:'fingerprint'},
+    {id:'uuid', name:'UUID 生成器', icon:'qr_code'},
+    {id:'password', name:'密码生成器', icon:'key'}
+  ]},
+  {group:'格式化', icon:'format_align_left', items:[
+    {id:'json', name:'JSON 格式化', icon:'data_object'},
+    {id:'code', name:'代码格式化', icon:'javascript'},
+    {id:'regex', name:'正则测试器', icon:'pattern'},
+    {id:'markdown', name:'Markdown 预览', icon:'article'},
+    {id:'diff', name:'文本差异对比', icon:'compare'}
+  ]},
+  {group:'文本处理', icon:'text_fields', items:[
+    {id:'case', name:'大小写转换', icon:'text_format'},
+    {id:'stats', name:'文本统计', icon:'bar_chart'},
+    {id:'searchText', name:'搜索与替换', icon:'find_in_page'}
+  ]},
+  {group:'数字进制', icon:'calculate', items:[
+    {id:'baseconv', name:'进制转换', icon:'swap_horiz'},
+    {id:'units', name:'单位换算', icon:'straighten'}
+  ]},
+  {group:'颜色工具', icon:'palette', items:[
+    {id:'colorpicker', name:'颜色选择/转换', icon:'colorize'},
+    {id:'palette', name:'调色板生成', icon:'gradient'}
+  ]},
+  {group:'日期时间', icon:'schedule', items:[
+    {id:'timestamp', name:'时间戳转换', icon:'timer'},
+    {id:'datediff', name:'日期差值', icon:'date_range'},
+    {id:'worldclock', name:'世界时钟', icon:'language'}
+  ]},
+  {group:'其他工具', icon:'widgets', items:[
+    {id:'qrcode', name:'二维码生成', icon:'qr_code_2'},
+    {id:'pomodoro', name:'后台番茄钟', icon:'hourglass_top'},
+    {id:'keycode', name:'键码查看器', icon:'keyboard'}
+  ]},
+  {group:'系统', icon:'settings', items:[
+    {id:'settings', name:'系统设置', icon:'settings', alwaysVisible:true}
+  ]}
+];
+
+let settings = JSON.parse(localStorage.getItem('dt_settings')) || {
+  theme: 'light', hiddenTools: [], quickTools: ['base64', 'json', 'regex', 'hash', 'colorpicker', 'timestamp', 'uuid'], homeTimeFormat: 24
+};
+
+function saveSettings() { localStorage.setItem('dt_settings', JSON.stringify(settings)); }
+const TOOL_STATES = {};
+let currentTool = 'home';
+let cleanups = []; // 修复内存泄漏：用于在切换页面时清理事件和定时器
+
+// 将番茄钟状态提升到全局，使其可以在后台持续运行
+const globalPomodoro = { time: 25*60, running: false, intervalId: null };
+
+// ============== UTILS ==============
+function $(sel, ctx=document) { return ctx.querySelector(sel); }
+function $$(sel, ctx=document) { return [...ctx.querySelectorAll(sel)]; }
+function el(tag, attrs={}, children=[]) {
+  const e = document.createElement(tag);
+  if (typeof attrs === 'string') { e.textContent = attrs; return e; }
+  Object.entries(attrs).forEach(([k,v]) => {
+    if (k === 'className') e.className = v;
+    else if (k === 'innerHTML') e.innerHTML = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2).toLowerCase(), v);
+    else if (k === 'style' && typeof v === 'object') Object.assign(e.style, v);
+    else e.setAttribute(k, v);
+  });
+  (Array.isArray(children) ? children : [children]).forEach(c => {
+    if (c) e.append(typeof c === 'string' ? document.createTextNode(c) : c);
+  });
+  return e;
+}
+function showSnackbar(msg) {
+  const s = $('#snackbar'); s.textContent = msg; s.classList.add('show');
+  setTimeout(() => s.classList.remove('show'), 2500);
+}
+function copyText(text) {
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => showSnackbar('已复制到剪贴板 ✓')).catch(() => showSnackbar('复制失败'));
+}
+function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+function getAllTools() { return ALL_TOOLS.flatMap(g => g.items); }
+function isToolVisible(id) {
+  const t = getAllTools().find(t=>t.id===id);
+  return t ? (t.alwaysVisible || !settings.hiddenTools.includes(id)) : false;
+}
+function loadScript(src, objName) {
+  return new Promise((resolve) => {
+    if (window[objName]) return resolve();
+    if ($(`script[src="${src}"]`)) {
+      const check = setInterval(()=>{ if(window[objName]){ clearInterval(check); resolve(); } }, 100);
+      return;
+    }
+    const s = document.createElement('script'); s.src = src;
+    s.onload = () => resolve(); s.onerror = () => resolve(); document.head.append(s);
+  });
+}
+
+// ============== THEME ==============
+function initTheme() {
+  document.documentElement.setAttribute('data-theme', settings.theme);
+  $('#themeIcon').textContent = settings.theme === 'dark' ? 'light_mode' : 'dark_mode';
+}
+$('#themeToggle').addEventListener('click', () => {
+  settings.theme = settings.theme === 'dark' ? 'light' : 'dark';
+  initTheme(); saveSettings();
+});
+
+// ============== NAVIGATION ==============
+function buildNav() {
+  const nav = $('#navDrawer'); nav.innerHTML = '';
+  ALL_TOOLS.forEach(g => {
+    const visibleItems = g.items.filter(t => isToolVisible(t.id));
+    if (visibleItems.length === 0) return;
+    const group = el('div', {className:'nav-group'}, [
+      el('div', {className:'nav-group-title', onclick: (e) => {
+        e.currentTarget.classList.toggle('collapsed');
+        e.currentTarget.nextElementSibling.classList.toggle('collapsed');
+      }}, g.group),
+      el('div', {className:'nav-sub'}, visibleItems.map(t => {
+        const item = el('div', {className:`nav-item ${t.id===currentTool?'active':''}`, 'data-id':t.id, onclick:()=>navigateTo(t.id)}, [
+          el('span', {className:'material-symbols-rounded'}, t.icon), el('span', {}, t.name)
+        ]);
+        return item;
+      }))
+    ]);
+    nav.append(group);
+  });
+}
+
+function navigateTo(id) {
+  if (!getAllTools().find(t=>t.id===id)) return;
+  currentTool = id; location.hash = id;
+  $$('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.id === id));
+  
+  // 运行清理函数，防止前一个工具发生内存泄漏
+  cleanups.forEach(fn => fn()); cleanups = [];
+  
+  const main = $('#mainContent'); main.innerHTML = '';
+  if(TOOL_RENDERERS[id]) TOOL_RENDERERS[id](main, TOOL_STATES[id] = TOOL_STATES[id] || {});
+  
+  // 移动端关闭侧边栏
+  if (window.innerWidth <= 900) { $('#navDrawer').classList.remove('open'); $('#overlay').classList.remove('show'); }
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+$('#menuBtn').addEventListener('click', () => { $('#navDrawer').classList.toggle('open'); $('#overlay').classList.toggle('show'); });
+$('#overlay').addEventListener('click', () => { $('#navDrawer').classList.remove('open'); $('#overlay').classList.remove('show'); });
+
+// ============== SEARCH ==============
+$('#searchBtn').addEventListener('click', () => { $('#search-overlay').classList.add('active'); $('#search-input').value=''; $('#search-input').focus(); });
+$('#search-overlay').addEventListener('click', (e) => { if (e.target.id === 'search-overlay') $('#search-overlay').classList.remove('active'); });
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); $('#searchBtn').click(); }
+  if (e.key === 'Escape') $('#search-overlay').classList.remove('active');
+});
+$('#search-input').addEventListener('input', debounce((e) => {
+  const q = e.target.value.toLowerCase(); const res = $('#search-results'); res.innerHTML = ''; if (!q) return;
+  getAllTools().filter(t => isToolVisible(t.id) && t.name.toLowerCase().includes(q)).forEach(t => {
+    res.append(el('div', {className:'search-item', onclick:()=>{ $('#search-overlay').classList.remove('active'); navigateTo(t.id); }}, [
+      el('span', {className:'material-symbols-rounded'}, t.icon), el('span', {}, t.name)
+    ]));
+  });
+}, 150));
+
+window.addEventListener('scroll', debounce(() => { $('#fab').classList.toggle('hidden', window.scrollY < 300); }, 100));
+$('#fab').addEventListener('click', () => window.scrollTo({top:0, behavior:'smooth'}));
+
+const TOOL_RENDERERS = {};
+
+// ============== HOME ==============
+TOOL_RENDERERS.home = (root) => {
+  const formatTime = () => {
+    const now = new Date(); let h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
+    if (settings.homeTimeFormat === 12) { const ampm = h >= 12 ? ' PM' : ' AM'; return `${(h%12||12).toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}${ampm}`; }
+    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  };
+  root.append(el('div', {}, [
+    el('div', {className:'home-hero'}, [
+      el('div', {id:'homeTime', className:'home-time'}, formatTime()),
+      el('div', {style:'opacity:0.9; margin-top:8px'}, new Date().toLocaleDateString('zh-CN', {year:'numeric',month:'long',day:'long',weekday:'long'})),
+      el('div', {className:'home-quote'}, '“Talk is cheap. Show me the code.” — Linus Torvalds')
+    ]),
+    el('div', {className:'card'}, [
+      el('h3', {}, '🚀 快捷工具'),
+      el('div', {className:'grid-3'}, settings.quickTools.filter(tid=>isToolVisible(tid)).map(tid => {
+        const t = getAllTools().find(x=>x.id===tid); if(!t) return null;
+        return el('div', {className:'quick-tool-btn', onclick:()=>navigateTo(tid)}, [
+          el('span', {className:'material-symbols-rounded'}, t.icon), el('span', {style:'font-size:14px;font-weight:500'}, t.name)
+        ]);
+      }).filter(Boolean))
+    ])
+  ]));
+  const t = setInterval(() => { const e=$('#homeTime'); if(e) e.textContent=formatTime(); }, 1000);
+  cleanups.push(() => clearInterval(t)); // 修复定时器泄漏
+};
+
+// ============== SETTINGS ==============
+TOOL_RENDERERS.settings = (root) => {
+  root.append(el('div', {className:'card'}, [
+    el('div', {className:'card-header'}, [el('h2', {}, '系统设置')]),
+    el('div', {className:'settings-item'}, [
+      el('span', {style:'font-weight:500'}, '🌙 深色模式'),
+      el('label', {className:'switch'}, [
+        el('input', {type:'checkbox', checked:settings.theme==='dark', onchange:(e)=>{
+          settings.theme = e.target.checked ? 'dark' : 'light';
+          initTheme(); saveSettings();
+        }}), el('span', {className:'slider'})
+      ])
+    ]),
+    el('div', {className:'settings-item', style:'flex-wrap:wrap'}, [
+      el('div', {style:'margin-bottom:8px;font-weight:500'}, '🕒 首页时间格式'),
+      el('div', {className:'btn-group', style:'margin:0'}, [
+        el('button', {className:settings.homeTimeFormat===12?'btn btn-filled':'btn btn-outlined', onclick:()=>{settings.homeTimeFormat=12;saveSettings();navigateTo('settings')}}, '12小时制'),
+        el('button', {className:settings.homeTimeFormat===24?'btn btn-filled':'btn btn-outlined', onclick:()=>{settings.homeTimeFormat=24;saveSettings();navigateTo('settings')}}, '24小时制')
+      ])
+    ]),
+    el('div', {style:'margin-top:24px'}, [
+      el('h3', {}, '🧩 管理工具显示 (关闭则在侧边栏隐藏)'),
+      el('div', {className:'grid-3'}, getAllTools().filter(t => !t.alwaysVisible).map(t => 
+        el('div', {className:'settings-item', style:'padding:10px; border:1px solid var(--md-sys-color-outline-variant); border-radius:var(--md-sys-shape-md)'}, [
+          el('div', {style:'display:flex;align-items:center;gap:8px'}, [el('span', {className:'material-symbols-rounded', style:'font-size:18px'}, t.icon), el('span', {style:'font-size:13px'}, t.name)]),
+          el('label', {className:'switch'}, [
+            el('input', {type:'checkbox', checked:!settings.hiddenTools.includes(t.id), onchange:(e)=>{
+              if (e.target.checked) settings.hiddenTools = settings.hiddenTools.filter(x=>x!==t.id);
+              else settings.hiddenTools.push(t.id);
+              saveSettings(); buildNav();
+            }}), el('span', {className:'slider'})
+          ])
+        ])
+      ))
+    ]),
+    el('div', {style:'margin-top:24px'}, [
+      el('h3', {}, '📌 首页快捷工具 (选中在首页显示)'),
+      el('div', {className:'flex'}, getAllTools().filter(t => !t.alwaysVisible).map(t => 
+        el('label', {className:`chip ${settings.quickTools.includes(t.id)?'selected':''}`, style:'margin:4px', onclick:(e)=>{
+          const chip = e.currentTarget; const checkbox = chip.querySelector('input');
+          checkbox.checked = !checkbox.checked;
+          if (checkbox.checked) settings.quickTools.push(t.id); else settings.quickTools = settings.quickTools.filter(x=>x!==t.id);
+          chip.classList.toggle('selected', checkbox.checked); saveSettings();
+        }}, [el('input', {type:'checkbox', checked:settings.quickTools.includes(t.id), style:'display:none'}), t.name])
+      ))
+    ])
+  ]));
+};
+
+// ============== TOOLS ==============
+TOOL_RENDERERS.base64 = (root, state) => {
+  root.append(el('div', {className:'card'}, [
+    el('div', {className:'card-header'}, [el('h2', {}, 'Base64 编解码')]),
+    el('textarea', {id:'input', placeholder:'输入需转换的文本...', rows:4, value:state.input||''}),
+    el('div', {className:'btn-group'}, [
+      el('button', {className:'btn btn-filled', onclick:()=>{
+        try { $('#output').value=btoa(unescape(encodeURIComponent($('#input').value))); showSnackbar('编码成功 ✓'); }
+        catch(e){ $('#output').value='错误: '+e.message; }
+      }}, '编码 Encode'),
+      el('button', {className:'btn btn-outlined', onclick:()=>{
+        try { $('#output').value=decodeURIComponent(escape(atob($('#input').value))); showSnackbar('解码成功 ✓'); }
+        catch(e){ $('#output').value='错误: 无效的Base64'; }
+      }}, '解码 Decode')
+    ]),
+    el('div', {style:'position:relative'}, [
+      el('textarea', {id:'output', placeholder:'结果将在此显示...', rows:4, readonly:true}),
+      el('button', {className:'btn btn-text copy-btn-abs', onclick:()=>copyText($('#output').value)}, '复制')
+    ])
+  ]));
+  $('#input').addEventListener('input', debounce((e)=>{state.input=e.target.value}, 300));
+};
+
+TOOL_RENDERERS.url = (root, state) => {
+  root.append(el('div', {className:'card'}, [
+    el('div', {className:'card-header'}, [el('h2', {}, 'URL 编解码')]),
+    el('textarea', {id:'input', placeholder:'输入URL或参数...', rows:3, value:state.input||''}),
+    el('div', {className:'btn-group'}, [
+      el('button', {className:'btn btn-filled', onclick:()=>$('#output').value=encodeURIComponent($('#input').value)}, 'Encode (Component)'),
+      el('button', {className:'btn btn-outlined', onclick:()=>{try{$('#output').value=decodeURIComponent($('#input').value)}catch(e){$('#output').value='错误'}}}, 'Decode'),
+      el('button', {className:'btn btn-outlined', onclick:()=>$('#output').value=encodeURI($('#input').value)}, 'EncodeURI')
+    ]),
+    el('textarea', {id:'output', rows:3, readonly:true})
+  ]));
+  $('#input').addEventListener('input', (e)=>{state.input=e.target.value});
+};
+
+TOOL_RENDERERS.password = (root) => {
+  const chars = {lower:'abcdefghijklmnopqrstuvwxyz', upper:'ABCDEFGHIJKLMNOPQRSTUVWXYZ', digits:'0123456789', symbols:'!@#$%^&*()_+-=[]{}|;:,.<>?'};
+  root.append(el('div', {className:'card'}, [
+    el('div', {className:'card-header'}, [el('h2', {}, '随机密码生成器')]),
+    el('div', {style:'display:flex;align-items:center;gap:12px;margin-bottom:16px'}, [
+      el('label', {style:'margin:0'}, '长度'),
+      el('input', {id:'length', type:'number', value:16, min:4, max:128, style:'width:100px;margin:0'})
+    ]),
+    el('div', {className:'flex', style:'gap:8px;margin-bottom:16px'}, Object.entries(chars).map(([k,v]) => 
+      el('label', {className:'chip selected', onclick:(e)=>e.currentTarget.classList.toggle('selected')}, [
+        el('input', {type:'checkbox', checked:true, style:'display:none'}), k.charAt(0).toUpperCase()+k.slice(1)
+      ])
+    )),
+    el('div', {className:'btn-group'}, [
+      el('button', {className:'btn btn-filled', onclick:()=>{
+        const len = parseInt($('#length').value)||16;
+        const pool = [...$$('.chip.selected', root).map(c=>chars[c.textContent.toLowerCase().trim()])].join('');
+        if (!pool) return showSnackbar('请至少选择一种字符类型');
+        const pw = Array.from({length:len}, ()=>pool[Math.floor(Math.random()*pool.length)]).join('');
+        $('#output').value = pw;
+      }}, '生成密码'),
+      el('button', {className:'btn btn-outlined', onclick:()=>copyText($('#output').value)}, '复制结果')
+    ]),
+    el('input', {id:'output', type:'text', readonly:true, style:'font-size:18px;letter-spacing:1px;font-family:monospace'})
+  ]));
+};
+
+TOOL_RENDERERS.json = (root, state) => {
+  root.append(el('div', {className:'card'}, [
+    el('div', {className:'card-header'}, [el('h2', {}, 'JSON 格式化校验')]),
+    el('textarea', {id:'input', placeholder:'粘贴 JSON...', rows:6, value:state.input||''}),
+    el('div', {className:'btn-group'}, [
+      el('button', {className:'btn btn-filled', onclick:()=>{
+        try { $('#output').value = JSON.stringify(JSON.parse($('#input').value), null, 2); $('#status').textContent='✓ 有效的 JSON'; $('#status').style.color='green'; } 
+        catch(e) { $('#status').textContent='✗ ' + e.message; $('#status').style.color='red'; }
+      }}, '格式化'),
+      el('button', {className:'btn btn-outlined', onclick:()=>{try{$('#output').value=JSON.stringify(JSON.parse($('#input').value))}catch(e){}}}, '压缩'),
+      el('button', {className:'btn btn-text', onclick:()=>{$('#input').value='';$('#output').value='';$('#status').textContent='';state.input='';}}, '清空')
+    ]),
+    el('div', {id:'status', style:'margin-bottom:8px;font-weight:500;font-size:13px'}),
+    el('div', {style:'position:relative'}, [
+      el('textarea', {id:'output', rows:8, readonly:true}),
+      el('button', {className:'btn btn-text copy-btn-abs', onclick:()=>copyText($('#output').value)}, '复制')
+    ])
+  ]));
+  $('#input').addEventListener('input', debounce((e)=>{state.input=e.target.value}, 300));
+};
+
+TOOL_RENDERERS.regex = (root, state) => {
+  root.append(el('div', {className:'card'}, [
+    el('div', {className:'card-header'}, [el('h2', {}, '正则表达式测试器')]),
+    el('div', {className:'flex'}, [
+      el('div', {}, [el('label', {}, '正则表达式'), el('input', {id:'regex', type:'text', placeholder:'[a-z]+', value:state.regex||''})]),
+      el('div', {style:'flex:0.3;min-width:80px'}, [el('label', {}, '标志(Flags)'), el('input', {id:'flags', type:'text', value:state.flags||'g'})])
+    ]),
+    el('label', {}, '测试文本'),
+    el('textarea', {id:'text', placeholder:'输入测试文本...', rows:3, value:state.text||''}),
+    el('div', {id:'matches', className:'result-box', style:'min-height:80px'})
+  ]));
+  const update = () => {
+    state.regex=$('#regex').value; state.flags=$('#flags').value; state.text=$('#text').value;
+    try {
+      if(!state.regex) return $('#matches').textContent = '请输入正则表达式';
+      const re = new RegExp(state.regex, state.flags); const matches = [...state.text.matchAll(re)];
+      if (matches.length === 0) return $('#matches').textContent = '无匹配结果';
+      $('#matches').innerHTML = `<div style="color:var(--md-sys-color-primary);margin-bottom:8px;font-weight:600">找到 ${matches.length} 个匹配:</div>` + 
+        matches.map((m, i) => `<div style="margin-bottom:4px"><strong>[${i+1}]</strong> <code>${m[0]}</code> @ 位置 ${m.index}</div>`).join('');
+    } catch(e) { $('#matches').innerHTML = `<span style="color:var(--md-sys-color-error)">错误: ${e.message}</span>`; }
+  };
+  $('#regex').addEventListener('input', debounce(update, 200)); $('#flags').addEventListener('input', debounce(update, 200)); $('#text').addEventListener('input', debounce(update, 200));
+  update();
+};
+
+TOOL_RENDERERS.pomodoro = (root) => {
+  root.append(el('div', {className:'card', style:'text-align:center'}, [
+    el('div', {className:'card-header'}, [el('h2', {}, '后台番茄钟')]),
+    el('div', {id:'timer', style:'font-size:clamp(64px, 10vw, 96px); font-weight:300; font-family:"Roboto Mono",monospace; color:var(--md-sys-color-primary); margin: 20px 0; letter-spacing:4px;'}, '25:00'),
+    el('div', {className:'btn-group', style:'justify-content:center; margin-top:24px;'}, [
+      el('button', {className:'btn btn-filled', id:'startBtn'}, globalPomodoro.running ? '暂停' : '开始'),
+      el('button', {className:'btn btn-outlined', id:'resetBtn'}, '重置 (25分)'),
+      el('button', {className:'btn btn-text', id:'restBtn'}, '休息 (5分)')
+    ])
+  ]));
+  
+  const updateDisplay = () => {
+    const m = Math.floor(globalPomodoro.time/60), s = globalPomodoro.time%60;
+    const disp = $('#timer'); if(disp) disp.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  };
+  
+  const tick = () => {
+    globalPomodoro.time--; updateDisplay();
+    if (globalPomodoro.time <= 0) {
+      clearInterval(globalPomodoro.intervalId); globalPomodoro.running = false; globalPomodoro.intervalId = null;
+      showSnackbar('⏰ 时间到！'); const b = $('#startBtn'); if(b) b.textContent = '开始';
+    }
+  };
+
+  $('#startBtn').addEventListener('click', (e) => {
+    if (globalPomodoro.running) {
+      clearInterval(globalPomodoro.intervalId); globalPomodoro.running = false; e.target.textContent = '开始';
+    } else {
+      globalPomodoro.running = true; e.target.textContent = '暂停';
+      globalPomodoro.intervalId = setInterval(tick, 1000);
+    }
+  });
+
+  $('#resetBtn').addEventListener('click', () => {
+    clearInterval(globalPomodoro.intervalId); globalPomodoro.running = false;
+    globalPomodoro.time = 25*60; $('#startBtn').textContent = '开始'; updateDisplay();
+  });
+  
+  $('#restBtn').addEventListener('click', () => {
+    clearInterval(globalPomodoro.intervalId); globalPomodoro.running = false;
+    globalPomodoro.time = 5*60; $('#startBtn').textContent = '开始'; updateDisplay();
+  });
+
+  updateDisplay();
+};
+
+TOOL_RENDERERS.keycode = (root) => {
+  root.append(el('div', {className:'card', style:'text-align:center; min-height: 400px; display:flex; flex-direction:column; justify-content:center'}, [
+    el('h2', {style:'margin-bottom:8px'}, '键码查看器 (Keycode)'),
+    el('p', {style:'opacity:0.7;margin-bottom:32px'}, '请在键盘上按下任意键'),
+    el('div', {id:'keyDisplay', style:'font-size:48px;font-weight:500;color:var(--md-sys-color-primary);margin-bottom:24px'}, '-'),
+    el('div', {id:'keyDetails', style:'display:flex; justify-content:center; gap:16px; flex-wrap:wrap'}, '')
+  ]));
+  
+  const handler = (e) => {
+    e.preventDefault();
+    $('#keyDisplay').textContent = e.key === ' ' ? 'Space' : e.key;
+    $('#keyDetails').innerHTML = `
+      <div class="chip selected">e.code: ${e.code}</div>
+      <div class="chip selected">e.keyCode: ${e.keyCode}</div>
+      <div class="chip selected">Ctrl: ${e.ctrlKey}</div>
+      <div class="chip selected">Shift: ${e.shiftKey}</div>
+    `;
+  };
+  document.addEventListener('keydown', handler);
+  cleanups.push(() => document.removeEventListener('keydown', handler)); // 修复按键事件泄漏
+};
+
+TOOL_RENDERERS.worldclock = (root) => {
+  const zones = [['北京/上海','Asia/Shanghai'],['纽约','America/New_York'],['伦敦','Europe/London'],['东京','Asia/Tokyo']];
+  root.append(el('div', {className:'card'}, [
+    el('div', {className:'card-header'}, [el('h2', {}, '世界时钟')]),
+    el('div', {className:'grid-3'}, zones.map(([name,tz]) => el('div', {className:'card', style:'padding:16px;text-align:center;margin-bottom:0'}, [
+      el('div', {style:'font-size:14px;opacity:0.7;margin-bottom:8px'}, name),
+      el('div', {id:`clock-${tz.replace('/','-')}`, style:'font-size:24px;font-weight:500;font-family:monospace;color:var(--md-sys-color-primary)'}, '')
+    ])))
+  ]));
+  const update = () => zones.forEach(([,tz]) => { const e = $(`#clock-${tz.replace('/','-')}`); if(e) e.textContent = new Date().toLocaleTimeString('zh-CN', {timeZone:tz, hour12:false}); });
+  update(); const t = setInterval(update, 1000);
+  cleanups.push(() => clearInterval(t));
+};
+
+TOOL_RENDERERS.diff = (root) => {
+  root.append(el('div', {className:'card'}, [
+    el('div', {className:'card-header'}, [el('h2', {}, '简单文本差异对比')]),
+    el('div', {className:'flex'}, [
+      el('textarea', {id:'text1', placeholder:'原文本...', rows:6}),
+      el('textarea', {id:'text2', placeholder:'新文本...', rows:6})
+    ]),
+    el('button', {className:'btn btn-filled', style:'margin-bottom:16px', onclick:()=>{
+      const a = $('#text1').value.split('\n'); const b = $('#text2').value.split('\n');
+      // 简易 LCS 算法实现
+      const dp = Array.from({length:a.length+1}, ()=>Array(b.length+1).fill(0));
+      for(let i=1;i<=a.length;i++) for(let j=1;j<=b.length;j++) dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1]+1 : Math.max(dp[i-1][j], dp[i][j-1]);
+      const res = []; let i=a.length, j=b.length;
+      while(i>0||j>0) {
+        if(i>0&&j>0&&a[i-1]===b[j-1]) { res.unshift({t:a[i-1],m:'='}); i--; j--; }
+        else if(j>0&&(i===0||dp[i][j-1]>=dp[i-1][j])) { res.unshift({t:b[j-1],m:'+'}); j--; }
+        else { res.unshift({t:a[i-1],m:'-'}); i--; }
+      }
+      $('#output').innerHTML = res.map(d => `<div style="padding:2px 4px; border-radius:4px; font-family:monospace; background:${d.m==='='?'transparent':d.m==='+'?'rgba(34,197,94,0.1)':'rgba(239,68,68,0.1)'}; color:${d.m==='='?'inherit':d.m==='+'?'#16a34a':'#dc2626'}">${d.m==='='?'  ':d.m} ${d.t}</div>`).join('');
+    }}, '对比差异 (Line by Line)'),
+    el('div', {id:'output', className:'result-box'})
+  ]));
+};
+
+// ============== INIT APP ==============
+function init() {
+  initTheme();
+  buildNav();
+  const hash = location.hash.slice(1);
+  navigateTo(getAllTools().find(t=>t.id===hash) ? hash : 'home');
+}
+
+window.addEventListener('hashchange', () => {
+  const hash = location.hash.slice(1);
+  if (hash && hash !== currentTool) navigateTo(hash);
+});
+
+init();
+})();
+</script>
+</body>
+</html>
