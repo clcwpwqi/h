@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="auto">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日月前事</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            /* 默认 MD3 Monet 风格基础色 (浅色) */
+            --md-primary: #6750A4;
+            --md-on-primary: #FFFFFF;
+            --md-surface: #FFFBFE;
+            --md-on-surface: #1C1B1F;
+            --md-surface-variant: #E7E0EC;
+            --md-outline: #79747E;
+            --md-surface-container: #F4EFF4;
+            
+            --transition-speed: 0.3s;
+        }
+
+        [data-theme="dark"] {
+            /* 暗色模式配色 */
+            --md-primary: #D0BCFF;
+            --md-on-primary: #381E72;
+            --md-surface: #1C1B1F;
+            --md-on-surface: #E6E1E5;
+            --md-surface-variant: #49454F;
+            --md-outline: #938F99;
+            --md-surface-container: #2B2930;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root[data-theme="auto"] {
+                --md-primary: #D0BCFF;
+                --md-on-primary: #381E72;
+                --md-surface: #1C1B1F;
+                --md-on-surface: #E6E1E5;
+                --md-surface-variant: #49454F;
+                --md-outline: #938F99;
+                --md-surface-container: #2B2930;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--md-surface);
+            color: var(--md-on-surface);
+            font-family: system-ui, -apple-system, sans-serif;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- 阅读模式样式 --- */
+        #view-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+            line-height: 1.75;
+            font-size: 1.1rem;
+            user-select: text;
+        }
+
+        .markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4 {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: var(--md-primary);
+        }
+
+        .markdown-body p { margin-bottom: 1.2rem; }
+        
+        .markdown-body a { color: var(--md-primary); text-decoration: none; }
+        .markdown-body a:hover { text-decoration: underline; }
+        
+        .markdown-body blockquote {
+            border-left: 4px solid var(--md-primary);
+            padding-left: 1rem;
+            color: var(--md-outline);
+            background-color: var(--md-surface-container);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1.2rem;
+        }
+
+        .markdown-body code {
+            background-color: var(--md-surface-variant);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .markdown-body pre {
+            background-color: var(--md-surface-container);
+            padding: 1rem;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin-bottom: 1.2rem;
+        }
+
+        .markdown-body pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+
+        .markdown-body img { max-width: 100%; border-radius: 8px; }
+
+        /* --- 悬浮按钮 (FAB) --- */
+        #fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background-color: var(--md-primary);
+            color: var(--md-on-primary);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s, transform 0.2s;
+            z-index: 100;
+        }
+        #fab.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #fab:active { transform: scale(0.95); }
+        #fab svg { width: 24px; height: 24px; fill: currentColor; }
+
+        /* --- 设置与编辑模式 --- */
+        #edit-container {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--md-surface);
+            z-index: 200;
+            flex-direction: column;
+            padding: 2rem;
+        }
+        #edit-container.active { display: flex; }
+
+        .toolbar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            background-color: var(--md-surface-container);
+            color: var(--md-primary);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 24px; /* MD3 全圆角按钮 */
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn:hover { background-color: var(--md-surface-variant); }
+        .btn.primary { background-color: var(--md-primary); color: var(--md-on-primary); }
+        .btn.primary:hover { opacity: 0.9; }
+
+        #editor {
+            flex: 1;
+            width: 100%;
+            border: 2px solid var(--md-surface-variant);
+            border-radius: 12px;
+            background-color: var(--md-surface);
+            color: var(--md-on-surface);
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 1rem;
+            resize: none;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        #editor:focus { border-color: var(--md-primary); }
+
+        .setting-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--md-surface-container);
+            padding: 0.5rem 1rem;
+            border-radius: 24px;
+        }
+        select, input[type="color"] {
+            background: transparent;
+            color: var(--md-on-surface);
+            border: none;
+            outline: none;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        input[type="color"] { width: 32px; height: 32px; padding: 0; border-radius: 50%; overflow: hidden; }
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch { border: none; border-radius: 50%; }
+
+    </style>
+</head>
+<body>
+
+    <div id="view-container" class="markdown-body"></div>
+
+    <button id="fab" aria-label="设置">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+    </button>
+
+    <div id="edit-container">
+        <div class="toolbar">
+            <button class="btn" onclick="document.getElementById('file-upload').click()">
+                导入 .md
+            </button>
+            <input type="file" id="file-upload" accept=".md" style="display: none;" onchange="importMd(event)">
+            
+            <button class="btn" onclick="exportMd()">
+                导出 .md
+            </button>
+
+            <div class="setting-group">
+                <label>主题:</label>
+                <select id="theme-select" onchange="changeThemeMode(this.value)">
+                    <option value="auto">跟随系统</option>
+                    <option value="light">浅色</option>
+                    <option value="dark">深色</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label>强调色:</label>
+                <input type="color" id="color-picker" value="#6750A4" onchange="changeThemeColor(this.value)">
+            </div>
+
+            <div style="flex-grow: 1;"></div>
+            
+            <button class="btn primary" onclick="saveAndExit()">
+                保存并退出
+            </button>
+        </div>
+        <textarea id="editor" placeholder="在这里输入或导入 Markdown 内容..."></textarea>
+    </div>
+
+    <script>
+        // 初始化默认数据
+        const defaultMarkdown = `### 【鸽子衔枝之年】
+天上永恒的王座到来，世界为之焕然一新。然后真王，原初的那一位开始和旧世界的主人们，七位恐怖大王开战。那恐怖的大王们是龙。
+原初的那一位造出了自己发着光的影子。而影子的数量是四。
+
+### 【法涅斯，或者原初的那一位】
+原初的那一位，或许是法涅斯。它生着羽翼，头戴王冠，从蛋中出生，难以分辨雌雄。但是世界如果要被创造，蛋壳必须被打破。法涅斯——原初的那一位——却用蛋壳隔绝了「宇宙」和「世界的缩影」。
+
+### 【衔枝后四十余年】
+四十个冬天埋葬了火，四十个夏天沸腾了海。七位大王全部被打败，七个王国全部对天上俯首称臣。原初的那一位大王开始了天地的创造。为了「我们」——它最可怜的人儿将出现在这片大地。
+
+…
+
+### 【衔枝的四百余年】
+山川与河流落成，大海和大洋接纳了反叛者和不从者。原初的那一位和一位影子制造出了飞鸟、走兽和水鱼。它们还一起制造出了花草和树木。最后它们造出了人。我们的先祖的数目不可知晓。
+自此时起，我们先祖和原初的那一位立约。纪年也更迭一新。
+
+### 【箱舟开门之年】
+原初的那一位对人有一套神圣的规划。人只要幸福，它便欢欣。
+
+### 【箱舟开门的次年】
+人们耕耘，第一次收获。人们开掘，第一次收获贵金。人们聚集，第一次写就诗歌。
+
+### 【狂欢节之年】
+如果有饥馑，天上就落下食物与甘霖。如果有贫瘠，那大地就会生出矿藏。如果有忧郁蔓延，那么高天就会以声音回应。
+唯一的禁止之事，就是输给诱惑。但是诱惑的通道已经被封堵。
+
+…
+
+### 【葬火之年】
+天上的第二个王座到来，仿佛创世之初的大战再开。那一天，天也倾颓，地也崩裂。我们海渊之民的先祖，和他们世代栖居的土地，落入了此处。
+黑暗的年代由此开始。
+
+### 【黑暗的元年】
+七位大王的子民被海接纳，深海的龙嗣曾经统治这里。我们的先祖与它们发生了征战。
+先祖使用千灯将它们逐入影子，它们则在影子里狩猎人类。此处唯有黑暗，所以无处不是它们的猎场。
+人们的祈祷汇成哀歌，原初的那一位和其他三位发光的影子并不能听见。
+
+### 【太阳的比喻】
+黑暗的洞窟里，有一群未曾见过光的人们在生活。有一位见过太阳的贤人，对着洞窟的众人描绘着光之下的生活与太阳的伟大。他见众人无法理解，于是点起了火。人们于是开始崇拜火，以为这个是太阳，甚至开始习惯了黑暗与火光的生活。
+贤人死后，有人霸占了火，通过火，投下了自己巨大的影子。
+
+### 【忘忧莲的比喻】
+看见就会忘记忧愁的莲花。在漫长的旅行中，寻找归途的船长遇到了一群以这种莲花为食的人。有的人留下了，有的人抗拒了这种诱惑。
+活着就是无尽的苦海。我们只是在寻找归途。
+
+### 【黑暗的第三年】
+唯一没有抛弃我们的那一位，她乃是「时间之执政」。她是时刻，是无时不刻，是千风与日月之度量。她是一切欢欣之时，一切愤怒之时，一切渴望之时，一切迷狂之时。她是一切谵妄的时刻。
+我们称呼她「卡伊洛斯」，或者「不变世界的统领与执政」。真正秘密的名字，我们不敢直言，所以在这里倒写。「露塔斯伊」——我仅提一次。
+
+…
+
+### 【目盲之年】
+贤人阿布拉克他被开启了神智，他展示了从手中发出光的奇迹。先祖们以他为首领，开始建设「赫利俄斯」。
+
+…
+
+### 【目明之年，或日月的元年】
+「赫利俄斯」——太阳的神车，终于落成。白夜到来，常夜消散。
+日月的纪年开始了。
+
+### 【日月的二年】
+先祖们尝试寻找归途。地表的大战应该已经结束。
+但是原初的那一位，第一个王座，布下了禁令。先祖们无法找到归家之路。
+既然是如此，那原初的那一位，应该打败了后来的第二位吧。
+阿布拉克被太阳之子下令囚禁。
+
+### 【树的比喻】
+王的园丁与御园的树精相爱。但是国王想要新修凉亭的雕梁，需要砍伐最有灵气的那一棵灵木。国王是原初的那位之化身，因此园丁无法违逆万王之王，唯有对着国王的祭司祈祷。祭司乃是常世大神的化身。
+祭司怜悯园丁，于是说，你去折下灵树的枝条吧。园丁便去折枝，然后听从国王的命令砍伐了灵木。
+随后祭司说，你去种下灵木的枝吧。园丁说，灵木长成，需要五百年。祭司说，一念则千劫尽。于是园丁在自家后院种下了树枝。结果一瞬间，细枝长成了新树，那新树精是曾经树精的延续。
+因为那时刻之神，可以把「种子」的「这一刻」带到过去与未来。
+
+### 【日月之十年】
+阿布拉克故去已久。日月之前的事情已经记录得足够。若无把一切按事实记写的胆量，哪里能成为常世大神的书记呢？
+我听到了门外盔甲的声音，我于此绝笔。`;
+
+        // DOM 元素引用
+        const viewContainer = document.getElementById('view-container');
+        const editContainer = document.getElementById('edit-container');
+        const fab = document.getElementById('fab');
+        const editor = document.getElementById('editor');
+        const themeSelect = document.getElementById('theme-select');
+        const colorPicker = document.getElementById('color-picker');
+
+        // 连击检测逻辑
+        let clickCount = 0;
+        let clickTimer = null;
+
+        document.body.addEventListener('click', (e) => {
+            // 如果是在编辑模式下，不触发连击
+            if (editContainer.classList.contains('active')) return;
+            // 如果点击的是悬浮按钮，不触发连击
+            if (e.target.closest('#fab')) return;
+
+            clickCount++;
+            if (clickCount === 3) {
+                fab.classList.add('visible');
+                clickCount = 0; // 重置
+            }
+
+            clearTimeout(clickTimer);
+            clickTimer = setTimeout(() => {
+                clickCount = 0;
+            }, 500); // 500ms 内连续点击3次才生效
+        });
+
+        // 悬浮按钮点击进入编辑模式
+        fab.addEventListener('click', () => {
+            viewContainer.style.display = 'none';
+            editContainer.classList.add('active');
+            fab.classList.remove('visible'); // 进入编辑后隐藏按钮
+            editor.value = localStorage.getItem('mdContent') || defaultMarkdown;
+        });
+
+        // 初始化加载
+        function init() {
+            // 加载内容
+            const savedContent = localStorage.getItem('mdContent') || defaultMarkdown;
+            renderMarkdown(savedContent);
+
+            // 加载偏好设置
+            const savedTheme = localStorage.getItem('themeMode') || 'auto';
+            const savedColor = localStorage.getItem('themeColor') || '#6750A4';
+            
+            themeSelect.value = savedTheme;
+            colorPicker.value = savedColor;
+            
+            changeThemeMode(savedTheme);
+            changeThemeColor(savedColor);
+        }
+
+        // 渲染 Markdown
+        function renderMarkdown(content) {
+            viewContainer.innerHTML = marked.parse(content);
+        }
+
+        // 保存并退出
+        function saveAndExit() {
+            const content = editor.value;
+            localStorage.setItem('mdContent', content);
+            renderMarkdown(content);
+            
+            editContainer.classList.remove('active');
+            viewContainer.style.display = 'block';
+            fab.classList.remove('visible'); // 确保退出时按钮处于隐藏状态
+        }
+
+        // 导入 Markdown 文件
+        function importMd(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                editor.value = e.target.result;
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // 清空选择器，允许重复导入同名文件
+        }
+
+        // 导出 Markdown 文件
+        function exportMd() {
+            const text = editor.value || localStorage.getItem('mdContent') || defaultMarkdown;
+            const blob = new Blob([text], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'article.md';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // 切换深浅色模式
+        function changeThemeMode(mode) {
+            document.documentElement.setAttribute('data-theme', mode);
+            localStorage.setItem('themeMode', mode);
+        }
+
+        // 切换主题强调色
+        function changeThemeColor(color) {
+            document.documentElement.style.setProperty('--md-primary', color);
+            // 简单的暗色版本推算，用于暗色模式下的强调色
+            localStorage.setItem('themeColor', color);
+        }
+
+        // 启动
+        init();
+    </script>
+</body>
+</html>
